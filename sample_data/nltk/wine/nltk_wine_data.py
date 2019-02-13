@@ -97,6 +97,7 @@ dictionary = reduce(lambda key_a, key_b: set(wine_freq_data[key_a].keys()).union
                     wine_freq_data)
 
 data_as_vectors = np.zeros((len(wine_reviews_raw), len(dictionary)))
+label_vectors = np.zeros((len(wine_reviews_raw))).astype("int64")
 
 # Create map
 word_map = {}
@@ -105,6 +106,9 @@ for i, key in enumerate(dictionary):
 
 # Create Vectors
 for i, review in enumerate(wine_reviews_raw):
+
+    # Put Review Label Into A Vector
+    label_vectors[i] = review_labels[i]
 
     if review_labels[i] == 0:
 
@@ -119,9 +123,11 @@ for i, review in enumerate(wine_reviews_raw):
             data_as_vectors[i, word_map[word]] += 1
 
 
+
+
 final_data = {"bagofwords": {"freq_data": wine_freq_data, "label_counts": label_counts, "raw_data": cleaned_review_data,
                              "labels": review_labels},
-              "vectors": {"vectors": data_as_vectors, "word_map": word_map}}
+              "vectors": {"vectors": data_as_vectors, "word_map": word_map, "labels": label_vectors}}
 
 # Write Pickle File
 with open('wine_data.pkl', 'wb') as f:

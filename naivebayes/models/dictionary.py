@@ -42,9 +42,10 @@ class Multinomial:
             # Label Prior Calculation
             self.label_prior[label] = self.label_counts[label] / numb_training_instances
 
-    def predict(self, test_data):
+    def predict(self, test_data, return_scores = False):
 
         predicted_labels = []
+        all_scores = []
 
         # Make A Prediction For Each List of Words in test_data
         for word_list in test_data:
@@ -64,5 +65,10 @@ class Multinomial:
                                                                              self.smoothed_likelihood_empty[label])
             # Append Label With Highest Score To Output
             predicted_labels.append(max(scores, key=scores.get))
+            all_scores.append(scores)
+
+        # Return Scores If Desired
+        if return_scores:
+            return predicted_labels, all_scores
 
         return predicted_labels
