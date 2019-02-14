@@ -19,12 +19,12 @@ with open('./sample_data/nltk/wine/wine_data.pkl', 'rb') as f:
 
     freq_data = wine_bow_data["freq_data"]
     label_counts = wine_bow_data["label_counts"]
+    raw_data_top_removed = wine_bow_data["raw_data_top_removed"]
     raw_data = wine_bow_data["raw_data"]
     labels = wine_bow_data["labels"]
 
     model = DictMultinomial()
-    model.train(label_counts, freq_data)
-
+    model.train(labels, raw_data_top_removed)
     dict_predictions, dict_scores = model.predict(raw_data, return_scores=True)
 
     matches = 0
@@ -34,6 +34,7 @@ with open('./sample_data/nltk/wine/wine_data.pkl', 'rb') as f:
 
     print("Wine Data Example - Dictionary")
     print("Accuracy - " + str(matches/len(labels)))
+
 
     ################
     # Vector Model #

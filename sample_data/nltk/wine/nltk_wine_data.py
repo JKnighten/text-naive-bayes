@@ -4,6 +4,7 @@ import nltk
 import string
 import pickle
 import numpy as np
+import copy
 
 # Download WebText Corpus If Not Already Downloaded
 nltk.download('webtext')
@@ -74,7 +75,9 @@ n = 25
 label_0_top_50 = {word for word, freq in freq_dist_0.most_common(n)}
 label_1_top_50 = {word for word, freq in freq_dist_1.most_common(n)}
 
-for word_to_remove in label_0_top_50.union(label_1_top_50):
+words_to_remove = label_0_top_50.union(label_1_top_50)
+
+for word_to_remove in words_to_remove:
     del freq_dist_0[word_to_remove]
     del freq_dist_1[word_to_remove]
 
@@ -84,10 +87,19 @@ wine_freq_data[0] = freq_dist_0
 wine_freq_data[1] = freq_dist_1
 
 # Get Label Counts
-# TODO - Move Label Counts To Actual Model Class
 label_counts = {}
 label_counts[0] = len(list(filter(lambda label: label == 0, review_labels)))
 label_counts[1] = len(list(filter(lambda label: label == 1, review_labels)))
+
+
+cleaned_review_data_top_removed = copy.deepcopy(cleaned_review_data)
+# Remove Frequent Words From Raw Data
+for i, word_list in enumerate(cleaned_review_data_top_removed):
+
+    for word in list(word_list):
+
+        if word in words_to_remove:
+            word_list.remove(word)
 
 
 ###################
@@ -124,7 +136,7 @@ for i, review in enumerate(wine_reviews_raw):
             data_as_vectors[i, word_map[word]] += 1
 
 final_data = {"bagofwords": {"freq_data": wine_freq_data, "label_counts": label_counts, "raw_data": cleaned_review_data,
-                             "labels": review_labels},
+                             "labels": review_labels, "raw_data_top_removed": cleaned_review_data_top_removed},
               "vectors": {"vectors": data_as_vectors, "word_map": word_map, "labels": label_vectors}}
 
 # Write Pickle File

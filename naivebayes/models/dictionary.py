@@ -1,48 +1,54 @@
-from functools import reduce
+from collections import Counter
 
 
 class Multinomial:
+
     def __init__(self, smoothing=1.0):
         self.smoothing = smoothing
-        self.label_counts = None
-        self.labels_used = None
-        self.dictionary = None
+        self.label_counts = {}
+        self.labels_used = {}
+        self.dictionary = set()
         self.likelihoods = {}
         self.empty_likelihood = {}
         self.priors = {}
 
-    # TODO - Accept A List Of Labels Instead of Counts
-    def train(self, label_counts, train_data):
-        self.label_counts = label_counts
-        self.labels_used = set(train_data.keys())
+    # train_data - List of List of Words
+    # labels - List of Labels
+    def train(self, labels, train_data):
 
-        # Create Dictionary Using All Labels
-        self.dictionary = \
-            reduce(lambda key_a, key_b: set(train_data[key_a].keys()).union(set(train_data[key_b].keys())), train_data)
+        self.labels_used = set(labels)
 
-        # Get Total Number Of Training Instances
-        numb_training_instances = sum(self.label_counts.values())
+        # Setup Likelihood and Label Counts Dictionaries
+        for label in self.labels_used:
+            self.likelihoods[label] = Counter()
+            self.label_counts[label] = 0
 
-        # Calculate Likelihoods And Apply Smoothing
+        # Calculate:
+        #    Label Counts
+        #    Dictionary
+        #    Word Frequency By Label(Stored In Likelihoods)
+        for i, label in enumerate(labels):
+            self.label_counts[label] += 1
+
+            for word in train_data[i]:
+                self.likelihoods[label][word] += 1
+                self.dictionary.add(word)
+
+        # Calculate Smoothed Likelihood and Priors
         for label in self.labels_used:
 
             # Number Of Words Belonging To Current Label
-            label_word_count = sum(train_data[label].values())
+            label_word_count = sum(self.likelihoods[label].values())
 
-            # Calculate Smoothed Likelihood For Each Word In Label
-            label_likelihoods = {}
-            for word in train_data[label]:
-                label_likelihoods[word] = (train_data[label][word] + self.smoothing) / \
-                                          (label_word_count + self.smoothing * len(self.dictionary))
+            for word in self.likelihoods[label].keys():
+                self.likelihoods[label][word] = (self.likelihoods[label][word] + self.smoothing) / \
+                                                (label_word_count + self.smoothing * len(self.dictionary))
 
-            self.likelihoods[label] = label_likelihoods
-            self.empty_likelihood[label] = self.smoothing / \
-                                           (label_word_count + self.smoothing * len(self.dictionary))
+            self.empty_likelihood[label] = self.smoothing / (label_word_count + self.smoothing * len(self.dictionary))
 
-            # Label Prior Calculation
-            self.priors[label] = self.label_counts[label] / numb_training_instances
+            self.priors[label] = self.label_counts[label] / len(labels)
 
-    def predict(self, test_data, return_scores = False):
+    def predict(self, test_data, return_scores=False):
 
         predicted_labels = []
         all_scores = []
