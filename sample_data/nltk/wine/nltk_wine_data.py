@@ -84,6 +84,7 @@ wine_freq_data[0] = freq_dist_0
 wine_freq_data[1] = freq_dist_1
 
 # Get Label Counts
+# TODO - Move Label Counts To Actual Model Class
 label_counts = {}
 label_counts[0] = len(list(filter(lambda label: label == 0, review_labels)))
 label_counts[1] = len(list(filter(lambda label: label == 1, review_labels)))
@@ -121,9 +122,6 @@ for i, review in enumerate(wine_reviews_raw):
     for word in words:
         if word in word_map:
             data_as_vectors[i, word_map[word]] += 1
-
-
-
 
 final_data = {"bagofwords": {"freq_data": wine_freq_data, "label_counts": label_counts, "raw_data": cleaned_review_data,
                              "labels": review_labels},
