@@ -1,3 +1,5 @@
+# TODO - Take Argument For Top N Words To Remove
+
 import csv
 import string
 import nltk
@@ -6,7 +8,6 @@ import numpy as np
 
 # Kaggle SMS Spam Dataset
 # Found Here: https://www.kaggle.com/uciml/sms-spam-collection-dataset
-
 with open("./spam.csv", encoding="ISO-8859-1") as csv_file:
     reader = csv.reader(csv_file)
 

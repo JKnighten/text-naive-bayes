@@ -17,15 +17,13 @@ with open('./sample_data/nltk/wine/wine_data.pkl', 'rb') as f:
 
     wine_bow_data = wine_data["bagofwords"]
 
-    freq_data = wine_bow_data["freq_data"]
-    label_counts = wine_bow_data["label_counts"]
     raw_data_top_removed = wine_bow_data["raw_data_top_removed"]
     raw_data = wine_bow_data["raw_data"]
     labels = wine_bow_data["labels"]
 
-    model = DictMultinomial()
-    model.train(labels, raw_data_top_removed)
-    dict_predictions, dict_scores = model.predict(raw_data, return_scores=True)
+    model_dict = DictMultinomial()
+    model_dict.train(labels, raw_data_top_removed)
+    dict_predictions, dict_scores = model_dict.predict(raw_data, return_scores=True)
 
     matches = 0
     for i in range(0, len(labels)):
@@ -46,9 +44,12 @@ with open('./sample_data/nltk/wine/wine_data.pkl', 'rb') as f:
     reviews_as_vector = wine_vector_data["vectors"]
     labels_as_vectors = wine_vector_data["labels"]
 
-    model = VectMultinomial()
-    model.train(labels_as_vectors, reviews_as_vector)
-    vect_predictions, vect_scores = model.predict(reviews_as_vector, return_scores=True)
+    print(labels_as_vectors.shape)
+    print(reviews_as_vector.shape)
+
+    model_vect = VectMultinomial()
+    model_vect.train(labels_as_vectors, reviews_as_vector)
+    vect_predictions, vect_scores = model_vect.predict(reviews_as_vector, return_scores=True)
 
     accuracy = np.sum(vect_predictions == labels_as_vectors)/labels_as_vectors.shape[0]
     print("Wine Data Example - Vector")
@@ -68,9 +69,9 @@ with open('./sample_data/kaggle/spam/sms_spam.pkl', 'rb') as f:
     raw_data = spam_bow_data["raw_data"]
     labels = spam_bow_data["labels"]
 
-    model = DictMultinomial()
-    model.train(labels, raw_data_top_removed)
-    dict_predictions, dict_scores = model.predict(raw_data, return_scores=True)
+    model_dict = DictMultinomial()
+    model_dict.train(labels, raw_data_top_removed)
+    dict_predictions, dict_scores = model_dict.predict(raw_data, return_scores=True)
 
     matches = 0
     for i in range(0, len(labels)):
@@ -90,9 +91,9 @@ with open('./sample_data/kaggle/spam/sms_spam.pkl', 'rb') as f:
     msgs_as_vector = spam_vector_data["vectors"]
     labels_as_vectors = spam_vector_data["labels"]
 
-    model2 = VectMultinomial()
-    model2.train(labels_as_vectors, msgs_as_vector)
-    vect_predictions, vect_scores = model2.predict(msgs_as_vector, return_scores=True)
+    model_vect = VectMultinomial()
+    model_vect.train(labels_as_vectors, msgs_as_vector)
+    vect_predictions, vect_scores = model_vect.predict(msgs_as_vector, return_scores=True)
 
     accuracy = np.sum(vect_predictions == labels_as_vectors)/labels_as_vectors.shape[0]
     print("Wine Data Example - Vector")
