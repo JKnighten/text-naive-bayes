@@ -23,8 +23,9 @@ class Multinomial:
 
         # Likelihood Smoothing
         numb_of_words_in_label = np.sum(self.likelihoods, axis=1)
-        numerator = self.likelihoods + 1
-        denominator = numb_of_words_in_label + self.smoothing + train_data.shape[1]
+
+        numerator = self.likelihoods + self.smoothing
+        denominator = numb_of_words_in_label + self.smoothing*train_data.shape[1]
         self.likelihoods = numerator / denominator[:, np.newaxis]
 
     def predict(self, test_data, return_scores=False):
