@@ -44,9 +44,6 @@ with open('./sample_data/nltk/wine/wine_data.pkl', 'rb') as f:
     reviews_as_vector = wine_vector_data["vectors"]
     labels_as_vectors = wine_vector_data["labels"]
 
-    print(labels_as_vectors.shape)
-    print(reviews_as_vector.shape)
-
     model_vect = VectMultinomial()
     model_vect.train(labels_as_vectors, reviews_as_vector)
     vect_predictions, vect_scores = model_vect.predict(reviews_as_vector, return_scores=True)
