@@ -1,9 +1,27 @@
-# TODO - Take Argument For Top N Words To Remove
-import nltk
-import string
-import pickle
-import numpy as np
+import argparse
 import copy
+import nltk
+import numpy as np
+import pickle
+import string
+
+
+###################
+# Parse Arguments #
+###################
+parser = argparse.ArgumentParser(description='Optional Arguments For NLTK Wine Data')
+
+parser.add_argument("--top_n_remove", type=int, help="Top N Frequent Words To Remove", default=0)
+
+args = parser.parse_args()
+
+if args.top_n_remove < 0:
+    parser.error("--top_n_remove Must Be 0 Or Greater")
+else:
+    n = args.top_n_remove
+
+print("Number Of Most Frequent Words To Remove: " + str(args.top_n_remove))
+
 
 # Download WebText Corpus If Not Already Downloaded
 nltk.download('webtext')
@@ -63,7 +81,6 @@ for review in wine_reviews_raw:
     cleaned_review_data.append(tokens)
 
 # Remove Top N Frequent Words
-n = 25
 bad_review_top = {word for word, freq in bad_review_freq.most_common(n)}
 good_review_top = {word for word, freq in good_review_freq.most_common(n)}
 words_to_remove = bad_review_top.union(good_review_top)

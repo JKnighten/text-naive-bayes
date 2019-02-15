@@ -1,10 +1,26 @@
-# TODO - Take Argument For Top N Words To Remove
-
+import argparse
 import csv
-import string
 import nltk
-import pickle
 import numpy as np
+import pickle
+import string
+
+
+###################
+# Parse Arguments #
+###################
+parser = argparse.ArgumentParser(description='Optional Arguments For Kaggle SMS Spam Data')
+
+parser.add_argument("--top_n_remove", type=int, help="Top N Frequent Words To Remove", default=0)
+
+args = parser.parse_args()
+
+if args.top_n_remove < 0:
+    parser.error("--top_n_remove Must Be 0 Or Greater")
+else:
+    n = args.top_n_remove
+
+print("Number Of Most Frequent Words To Remove: " + str(args.top_n_remove))
 
 # Kaggle SMS Spam Dataset
 # Found Here: https://www.kaggle.com/uciml/sms-spam-collection-dataset
@@ -47,7 +63,6 @@ with open("./spam.csv", encoding="ISO-8859-1") as csv_file:
             ham_word_freq.update(tokens)
 
     # Find Top N Frequent Words
-    n = 100
     spam_top = {word for word, freq in spam_word_freq.most_common(n)}
     ham_top = {word for word, freq in ham_word_freq.most_common(n)}
     words_to_remove = spam_top.union(ham_top)
