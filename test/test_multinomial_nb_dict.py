@@ -3,7 +3,7 @@ import unittest
 from naivebayes.models.dictionary import Multinomial
 
 
-class TestDistanceMetrics(unittest.TestCase):
+class TestDictionaryNaiveBayes(unittest.TestCase):
 
     def setUp(self):
         # Sports Data Example

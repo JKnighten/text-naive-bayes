@@ -3,7 +3,7 @@ import numpy as np
 from naivebayes.models.vector import Multinomial
 
 
-class TestDistanceMetrics(unittest.TestCase):
+class TestMultinomialNaiveBayes(unittest.TestCase):
 
     def setUp(self):
         # Sports Data Example
