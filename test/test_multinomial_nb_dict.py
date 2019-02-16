@@ -32,3 +32,14 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         self.assertIsNotNone(score)
         self.assertAlmostEqual(score[0]['sport'], 2.76e-05)
         self.assertAlmostEqual(score[0]['not sport'], 5.72e-06)
+
+    # Check That The Update Method Updates The Model
+    def test_nb_dict_update(self):
+        model = Multinomial()
+        model.train(self.sports_labels[0:4], self.sports_data[0:4])
+        model.update([self.sports_labels[4]], [self.sports_data[4]])
+        prediction, score = model.predict([["a", "very", "close", "game"]], return_scores=True)
+
+        self.assertEqual(prediction[0], "sport")
+        self.assertAlmostEqual(score[0]['sport'], 2.76e-05)
+        self.assertAlmostEqual(score[0]['not sport'], 5.72e-06)
