@@ -3,7 +3,7 @@ import numpy as np
 from naivebayes.models.vector import Multinomial
 
 
-class TestMultinomialNaiveBayes(unittest.TestCase):
+class TestVectorNaiveBayes(unittest.TestCase):
 
     def setUp(self):
         # Sports Data Example
@@ -17,7 +17,6 @@ class TestMultinomialNaiveBayes(unittest.TestCase):
                                            [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
                                            [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                                            [1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-
                                            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1]])
         self.labels_sports = np.array([0, 1, 0, 0, 1])
 
@@ -39,3 +38,14 @@ class TestMultinomialNaiveBayes(unittest.TestCase):
 
         self.assertIsNotNone(score)
         np.testing.assert_array_almost_equal(score, np.array([[2.76e-05, 5.72e-06]]))
+
+    # Check That The Update Method Updates The Model
+    def test_nb_dict_update(self):
+        model = Multinomial()
+        model.train(self.labels_sports[0:4], self.train_data_sports[0:4])
+        model.update(self.labels_sports[4], self.train_data_sports[4])
+        prediction, score = model.predict(self.a_very_close_game, return_scores=True)
+
+        self.assertEqual(prediction[0], 0)
+        self.assertAlmostEqual(score[0, 0], 2.76e-05)
+        self.assertAlmostEqual(score[0, 1], 5.72e-06)

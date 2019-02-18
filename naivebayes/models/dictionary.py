@@ -9,7 +9,7 @@ class Multinomial:
         self.labels_used = {}
         self.dictionary = set()
         self.likelihoods = {}
-        self.empty_likelihood = {}
+        self.empty_likelihoods = {}
         self.priors = {}
 
     # train_data - List of List of Words
@@ -46,7 +46,7 @@ class Multinomial:
                                                 (label_word_count + self.smoothing * len(self.dictionary))
 
             # Value Used For Words In Dictionary That Do Not Belong To The Label
-            self.empty_likelihood[label] = self.smoothing / (label_word_count + self.smoothing * len(self.dictionary))
+            self.empty_likelihoods[label] = self.smoothing / (label_word_count + self.smoothing * len(self.dictionary))
 
             # Prior Calculation
             self.priors[label] = self.label_counts[label] / len(labels)
@@ -72,7 +72,7 @@ class Multinomial:
                 # Skip Words Not In Dictionary
                 if word in self.dictionary:
                     for label in self.labels_used:
-                        scores[label] *= self.likelihoods[label].get(word, self.empty_likelihood[label])
+                        scores[label] *= self.likelihoods[label].get(word, self.empty_likelihoods[label])
 
             # Append Label With Highest Score To Output
             predicted_labels.append(max(scores, key=scores.get))
@@ -91,8 +91,8 @@ class Multinomial:
         # Convert Original Smoothed Likelihoods Back Into Word Frequency Distributions
         for label in self.likelihoods:
 
-            label_word_count = (self.smoothing - self.empty_likelihood[label] * self.smoothing * len(self.dictionary)) \
-                               / self.empty_likelihood[label]
+            label_word_count = (self.smoothing - self.empty_likelihoods[label] * self.smoothing * len(self.dictionary)) \
+                               / self.empty_likelihoods[label]
 
             for word in self.likelihoods[label]:
                 smoothed_likelihood = self.likelihoods[label][word]
@@ -128,7 +128,7 @@ class Multinomial:
                                                 (label_word_count + self.smoothing * len(self.dictionary))
 
             # Value Used For Words In Dictionary That Do Not Belong To The Label
-            self.empty_likelihood[label] = self.smoothing / (label_word_count + self.smoothing * len(self.dictionary))
+            self.empty_likelihoods[label] = self.smoothing / (label_word_count + self.smoothing * len(self.dictionary))
 
             # Prior Calculation
             self.priors[label] = self.label_counts[label] / sum(self.label_counts.values())
