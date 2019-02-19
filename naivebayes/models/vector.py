@@ -2,6 +2,7 @@ import numpy as np
 
 
 class Multinomial:
+
     def __init__(self, smoothing=1.0):
         self.smoothing = smoothing
         self.priors = np.empty(0)
@@ -125,5 +126,4 @@ class Multinomial:
         self.likelihoods = numerator / denominator
 
         # Update Empty Likelihood Values
-        self.empty_likelihoods = np.zeros((self.priors.shape[0], 1))
         self.empty_likelihoods = self.smoothing / (label_word_count + self.smoothing * new_dictionary_size)

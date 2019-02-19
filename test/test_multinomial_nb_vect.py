@@ -27,7 +27,7 @@ class TestVectorNaiveBayes(unittest.TestCase):
         self.correct_label_count = np.array([3, 2])
         self.correct_priors = np.array([3/5, 2/5])
         self.correct_a_very_close_game_score = np.array([(3/25) * (2/25) * (1/25) * (3/25) * (3/5),
-                                                 (2/23) * (1/23) * (2/23) * (1/23) * (2/5)])
+                                                         (2/23) * (1/23) * (2/23) * (1/23) * (2/5)])
 
         # Data For Extending The Dictionary
         self.sports_map = {"a": 0, "great": 1, "game": 2, "very": 3, "clean": 4,  "match": 5, "but": 6,

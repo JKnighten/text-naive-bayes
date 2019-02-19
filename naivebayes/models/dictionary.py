@@ -34,19 +34,21 @@ class Multinomial:
                 self.likelihoods[label][word] += 1
                 self.dictionary.add(word)
 
+        # Get Size of Dictionary Being Used
+        dictionary_size = len(self.dictionary)
+
         # Calculate Smoothed Likelihood and Priors
         for label in self.labels_used:
-
             # Number Of Words Belonging To Current Label
             label_word_count = sum(self.likelihoods[label].values())
 
             # Calculate Smoothed Likelihood For Each Word
             for word in self.likelihoods[label].keys():
                 self.likelihoods[label][word] = (self.likelihoods[label][word] + self.smoothing) / \
-                                                (label_word_count + self.smoothing * len(self.dictionary))
+                                                (label_word_count + self.smoothing * dictionary_size)
 
             # Value Used For Words In Dictionary That Do Not Belong To The Label
-            self.empty_likelihoods[label] = self.smoothing / (label_word_count + self.smoothing * len(self.dictionary))
+            self.empty_likelihoods[label] = self.smoothing / (label_word_count + self.smoothing * dictionary_size)
 
             # Prior Calculation
             self.priors[label] = self.label_counts[label] / len(labels)
@@ -60,7 +62,6 @@ class Multinomial:
 
         # Make A Prediction For Each List of Words in test_data
         for word_list in test_data:
-
             scores = {}
 
             # Initialize By Putting Priors In First
@@ -88,27 +89,27 @@ class Multinomial:
     # new_labels - List of Labels To Add To Model
     def update(self, new_labels, new_train_data):
 
+        # Get Size of Dictionary Being Used
+        dictionary_size = len(self.dictionary)
+
         # Convert Original Smoothed Likelihoods Back Into Word Frequency Distributions
         for label in self.likelihoods:
 
-            label_word_count = (self.smoothing - self.empty_likelihoods[label] * self.smoothing * len(self.dictionary)) \
+            label_word_count = (self.smoothing - self.empty_likelihoods[label] * self.smoothing * dictionary_size) \
                                / self.empty_likelihoods[label]
 
             for word in self.likelihoods[label]:
                 smoothed_likelihood = self.likelihoods[label][word]
-                word_freq = smoothed_likelihood * (label_word_count + self.smoothing * len(self.dictionary)) \
-                                   - self.smoothing
+                word_freq = smoothed_likelihood * (label_word_count + self.smoothing * dictionary_size) - self.smoothing
 
                 self.likelihoods[label][word] = word_freq
 
         # Update The Word Frequency Distributions With New Training Data
         for i, word_list in enumerate(new_train_data):
-
             # Update Label Counts
             self.label_counts[new_labels[i]] += 1
 
             for word in word_list:
-
                 # Assume User Wants To Add New Words To Dictionary
                 if word not in self.dictionary:
                     self.dictionary.add(word)
@@ -118,17 +119,42 @@ class Multinomial:
 
         # Recalculate Smoothed Likelihoods and Priors
         for label in self.labels_used:
-
             # Number Of Words Belonging To Current Label
             label_word_count = sum(self.likelihoods[label].values())
 
             # Calculate Smoothed Likelihood For Each Word
             for word in self.likelihoods[label].keys():
                 self.likelihoods[label][word] = (self.likelihoods[label][word] + self.smoothing) / \
-                                                (label_word_count + self.smoothing * len(self.dictionary))
+                                                (label_word_count + self.smoothing * dictionary_size)
 
             # Value Used For Words In Dictionary That Do Not Belong To The Label
-            self.empty_likelihoods[label] = self.smoothing / (label_word_count + self.smoothing * len(self.dictionary))
+            self.empty_likelihoods[label] = self.smoothing / (label_word_count + self.smoothing * dictionary_size)
 
             # Prior Calculation
             self.priors[label] = self.label_counts[label] / sum(self.label_counts.values())
+
+    def update_dictionary(self, new_dict):
+
+        # Grab New Words
+        new_words = new_dict.difference(self.dictionary)
+
+        old_dictionary_size = len(self.dictionary)
+
+        # Add New Words To Dictionary
+        self.dictionary.update(new_words)
+
+        # Convert Original Smoothed Likelihoods Back Into Word Frequency Distributions
+        for label in self.likelihoods:
+
+            label_word_count = (self.smoothing - self.empty_likelihoods[label] * self.smoothing * old_dictionary_size) \
+                               / self.empty_likelihoods[label]
+
+            for word in self.likelihoods[label]:
+                smoothed_likelihood = self.likelihoods[label][word]
+                word_freq = smoothed_likelihood * (label_word_count + self.smoothing * old_dictionary_size) \
+                                   - self.smoothing
+
+                self.likelihoods[label][word] = (word_freq + self.smoothing) / \
+                                                (label_word_count + self.smoothing * len(self.dictionary))
+
+            self.empty_likelihoods[label] = self.smoothing / (label_word_count + self.smoothing * len(self.dictionary))
