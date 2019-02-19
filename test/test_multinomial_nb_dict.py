@@ -45,7 +45,7 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
     def test_nb_dict_prediction(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
-        prediction = model.predict(self.a_very_close_game)
+        prediction, _ = model.predict(self.a_very_close_game)
 
         # Correct Model
         self.assertEqual(model.priors, self.correct_priors)
@@ -60,7 +60,7 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
     def test_nb_dict_scores(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
-        prediction, score = model.predict(self.a_very_close_game, return_scores=True)
+        prediction, score = model.predict(self.a_very_close_game)
 
         # Correct Score Output
         self.assertIsNotNone(score)
@@ -72,7 +72,7 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         model = Multinomial()
         model.train(self.sports_labels[0:4], self.sports_data[0:4])
         model.update([self.sports_labels[4]], [self.sports_data[4]])
-        prediction, score = model.predict(self.a_very_close_game, return_scores=True)
+        prediction, score = model.predict(self.a_very_close_game)
 
         # Correct Model
         self.assertEqual(model.priors, self.correct_priors)
@@ -92,7 +92,7 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
         model.update_dictionary(self.extended_dictionary)
-        prediction, score = model.predict(self.a_very_close_game, return_scores=True)
+        prediction, score = model.predict(self.a_very_close_game)
 
         # Correct Model Parameter Updates
         self.assertEqual(model.priors, self.correct_priors)

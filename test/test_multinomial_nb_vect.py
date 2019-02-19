@@ -48,7 +48,7 @@ class TestVectorNaiveBayes(unittest.TestCase):
     def test_nb_vect_correct_prediction_and_model(self):
         model = Multinomial()
         model.train(self.labels_sports, self.train_data_sports)
-        prediction = model.predict(self.a_very_close_game)
+        prediction, _ = model.predict(self.a_very_close_game)
 
         # Correct Model
         np.testing.assert_array_almost_equal(model.priors, self.correct_priors)
@@ -63,7 +63,7 @@ class TestVectorNaiveBayes(unittest.TestCase):
     def test_nb_vect_correct_score_output(self):
         model = Multinomial()
         model.train(self.labels_sports, self.train_data_sports)
-        prediction, score = model.predict(self.a_very_close_game, return_scores=True)
+        prediction, score = model.predict(self.a_very_close_game)
 
         # Correct Score Output
         self.assertIsNotNone(score)
@@ -74,7 +74,7 @@ class TestVectorNaiveBayes(unittest.TestCase):
         model = Multinomial()
         model.train(self.labels_sports[0:4], self.train_data_sports[0:4])
         model.update(self.labels_sports[4], self.train_data_sports[4])
-        prediction, score = model.predict(self.a_very_close_game, return_scores=True)
+        prediction, score = model.predict(self.a_very_close_game)
 
         # Correct Model Parameter Updates
         np.testing.assert_array_almost_equal(model.priors, self.correct_priors)
@@ -94,7 +94,7 @@ class TestVectorNaiveBayes(unittest.TestCase):
         model = Multinomial()
         model.train(self.labels_sports, self.train_data_sports)
         model.update_dictionary(self.sports_map, self.sports_map_extra)
-        prediction, score = model.predict(self.a_very_close_game_extra, return_scores=True)
+        prediction, score = model.predict(self.a_very_close_game_extra)
 
         # Correct Model Parameter Updates
         np.testing.assert_array_almost_equal(model.priors, self.correct_priors)
