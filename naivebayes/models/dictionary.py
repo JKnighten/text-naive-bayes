@@ -2,8 +2,35 @@ from collections import Counter
 
 
 class Multinomial:
+    """ A dictionary based multinomial naive bayes model.
+
+    Uses additive smoothing for the likelihood calculation. This model is able to have its dictionary updated and it can
+    be trained online by feeding it more training data after being initially trained.
+
+    This model is implemented in pure python. The data supplied to the model requires little pre-processing. Simply
+    turn each document into a list of words and then supply the lists to the training method.
+
+    Attributes:
+            smoothing (float): Additive smoothing factor used in likelihood calculations.
+            label_counts (:obj:`dict` of :obj:`int`) The number of times each label appeared in the training data.
+            labels_used (:obj:`set`): The set of labels used in the model
+            dictionary (:obj:`set`): The set of words used in the model
+            likelihoods (:obj:`dict` of :obj:`dict` of :obj:`float`): Smoothed likelihoods calculated for each label.
+            empty_likelihoods (:obj:`dict` of :obj:`float`): The empty likelihood calculated for each label. Used when:
+                a word has frequency of zero, providing more training data, and the dictionary is updated.
+            priors (:obj:`dict` of :obj:`float`): Priors calculated for each label.
+
+    """
 
     def __init__(self, smoothing=1.0):
+        """ Create a dictionary based multinomial naive bayes model.
+
+        Args:
+            smoothing (float, optional): Additive smoothing factor used in likelihood calculations. Defaults to
+                1.0(Laplace Smoothing).
+
+        """
+
         self.smoothing = smoothing
         self.label_counts = {}
         self.labels_used = {}
@@ -12,9 +39,15 @@ class Multinomial:
         self.empty_likelihoods = {}
         self.priors = {}
 
-    # train_data - List of List of Words
-    # labels - List of Labels
     def train(self, labels, train_data):
+        """ Trains the naive bayes model using the supplied training data.
+
+        Args:
+            labels (:obj:`list` of :obj:`str`): An list of document labels.
+            train_data (:obj:`list` of :obj:`list` of :obj:`str`): A collection of list of words. Each list of words
+                represents a document.
+
+        """
 
         self.labels_used = set(labels)
 
@@ -53,9 +86,19 @@ class Multinomial:
             # Prior Calculation
             self.priors[label] = self.label_counts[label] / len(labels)
 
-    # test_data - List of List of Words
-    # return_scores - Return Scores Used To Classify List of Words
-    def predict(self, test_data, return_scores=False):
+    def predict(self, test_data):
+        """ Predicts the labels for a collection of documents.
+
+        Args:
+            test_data (:obj:`list` of :obj:`list` of :obj:`str`): A collection of documents whose label will be
+                predicted by using the model.
+
+        Returns:
+            (tuple): tuple containing:
+                predictions (list): A list of predicted labels.
+                scores (:obj:`list` of :obj:`dict`): The scores used to make the predictions.
+
+        """
 
         predicted_labels = []
         all_scores = []
@@ -79,15 +122,19 @@ class Multinomial:
             predicted_labels.append(max(scores, key=scores.get))
             all_scores.append(scores)
 
-        # Return Scores If Desired
-        if return_scores:
-            return predicted_labels, all_scores
+        return predicted_labels, all_scores
 
-        return predicted_labels
-
-    # new_train_data - List of List of Words To Add To Model
-    # new_labels - List of Labels To Add To Model
     def update(self, new_labels, new_train_data):
+        """ Updates the model using more training data.
+
+        Any new words encountered in the additional training data will be added to the models dictionary.
+
+        Args:
+            new_labels (:obj:`list` of :obj:`str`): An list of document labels.
+            new_train_data (:obj:`list` of :obj:`list` of :obj:`str`): A collection of list of words. Each list of words
+                represents a document.
+
+        """
 
         # Get Size of Dictionary Being Used
         dictionary_size = len(self.dictionary)
@@ -117,6 +164,9 @@ class Multinomial:
                 # Add 1 To Word Frequency
                 self.likelihoods[new_labels[i]][word] += 1
 
+        # Get Size of Dictionary Being Used
+        new_dictionary_size = len(self.dictionary)
+
         # Recalculate Smoothed Likelihoods and Priors
         for label in self.labels_used:
             # Number Of Words Belonging To Current Label
@@ -125,15 +175,21 @@ class Multinomial:
             # Calculate Smoothed Likelihood For Each Word
             for word in self.likelihoods[label].keys():
                 self.likelihoods[label][word] = (self.likelihoods[label][word] + self.smoothing) / \
-                                                (label_word_count + self.smoothing * dictionary_size)
+                                                (label_word_count + self.smoothing * new_dictionary_size)
 
             # Value Used For Words In Dictionary That Do Not Belong To The Label
-            self.empty_likelihoods[label] = self.smoothing / (label_word_count + self.smoothing * dictionary_size)
+            self.empty_likelihoods[label] = self.smoothing / (label_word_count + self.smoothing * new_dictionary_size)
 
             # Prior Calculation
             self.priors[label] = self.label_counts[label] / sum(self.label_counts.values())
 
     def update_dictionary(self, new_dict):
+        """ Add new words to the dictionary.
+
+        Args:
+            new_dict (:obj:'set'): a set of new words to be added to the dictionary.
+
+        """
 
         # Grab New Words
         new_words = new_dict.difference(self.dictionary)

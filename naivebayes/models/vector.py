@@ -2,8 +2,34 @@ import numpy as np
 
 
 class Multinomial:
+    """ A vector based multinomial naive bayes model.
+
+    Uses additive smoothing in the likelihood calculations. This model is able to have its dictionary updated and it can
+    be trained online by feeding it more training data after being initially trained.
+
+    This model is implemented using numpy. This model expects documents to be represented as a vector. The vectors used
+    represent the frequency which words appear in the document. The columns of the vector will represent a specific
+    word, so ensure all vectors use a consistent word to column mapping.
+
+    Attributes:
+        smoothing (float): Additive smoothing factor used in likelihood calculations.
+        priors (ndarray): A 1D array representing the priors calculated for each label.
+        likelihoods (ndarray): A 2D array representing the smoothed likelihoods calculated for each label.
+        empty_likelihoods (ndarray): A 1D array representing the empty likelihoods calculated for each label. Used when
+            providing more training data and when the dictionary is updated.
+        label_counts (ndarray):A 1D array representing the number of times each label appeared in the training data.
+
+    """
 
     def __init__(self, smoothing=1.0):
+        """ Create a vector based multinomial naive bayes model.
+
+        Args:
+            smoothing (float, optional): Additive smoothing factor used in likelihood calculations. Defaults to
+                1.0(Laplace Smoothing).
+
+        """
+
         self.smoothing = smoothing
         self.priors = np.empty(0)
         self.likelihoods = np.empty(0)
@@ -11,6 +37,14 @@ class Multinomial:
         self.label_counts = np.empty(0)  # Could Store Just The Number Of Training Instances
 
     def train(self, labels, train_data):
+        """ Trains the naive bayes model using the supplied training data.
+
+        Args:
+            labels (ndarray): A 1D array of labels. Labels are represented by integers.
+            train_data (ndarray): A 2D array of training data. Rows represent documents and columns represent word
+                counts. Each column represents a specific word.
+
+        """
 
         # Get Size of Dictionary Being Used
         dictionary_size = train_data.shape[1]
@@ -40,7 +74,23 @@ class Multinomial:
         self.empty_likelihoods = np.zeros((self.priors.shape[0], 1))
         self.empty_likelihoods = self.smoothing / (label_word_count + self.smoothing * dictionary_size)
 
+
     def predict(self, test_data, return_scores=False):
+        """ Predicts the label for the supplied text document data.
+
+        Args:
+            test_data (ndarray): A 2D array of data which which will be used to make predictions. Rows represent
+                documents and columns represent word counts. Each column represents a specific word. Ensure columns
+                correspond with the data used in training. If columns do not correspond, use update_dictionary() to
+                update the model before making predictions.
+            return_scores (bool, optional): A flag used to determine if naive bayes scores will be returned. Defaults
+                to not returning scores
+
+        Returns:
+            A 1D array of predicted labels, each row represents a supplied document. If specified a 2D array of scores
+            will be returned.
+
+        """
 
         # Convert To Log Space
         log_priors = np.log(self.priors)
@@ -59,6 +109,16 @@ class Multinomial:
         return predicted_labels
 
     def update(self, new_labels, new_train_data):
+        """ Updates the model using more training data.
+
+        Takes a batch of new training data and updates the model. This allows the model to be used for online learning.
+
+        Args:
+            new_labels (ndarray): A 1D array of labels. Labels are represented by integers.
+            new_train_data (ndarray): A 2D array of training data. Rows represent documents and columns represent word
+                counts. Each column represents a specific word.
+
+        """
 
         # Get Size of Dictionary Being Used
         dictionary_size = self.likelihoods.shape[1]
@@ -94,6 +154,19 @@ class Multinomial:
         self.empty_likelihoods = self.smoothing / (label_word_count + self.smoothing * dictionary_size)
 
     def update_dictionary(self, old_map, new_map):
+        """ Changes the mapping between words to its representative column.
+
+        This will change the order and dimensions of the data used by the model. If you want to introduce new words to
+        your model this will be used to modify the vectors the model uses. You can also use this to remove words from
+        your model. If you use this method, make sure that your vectors supplied to update() and predict() matches the
+        new mapping.
+
+        Args:
+            old_map (:obj:`list` of :obj:`int`): The map from words to their representative column in the original
+                training data.
+            new_map (:obj:`list` of :obj:`int`): The new map from words to their representative column.
+
+        """
 
         # Get Size of Dictionary Being Used
         dictionary_size = self.likelihoods.shape[1]
