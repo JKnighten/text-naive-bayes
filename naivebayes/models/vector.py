@@ -75,7 +75,7 @@ class Multinomial:
         self.empty_likelihoods = self.smoothing / (label_word_count + self.smoothing * dictionary_size)
 
 
-    def predict(self, test_data, return_scores=False):
+    def predict(self, test_data):
         """ Predicts the label for the supplied text document data.
 
         Args:
@@ -83,10 +83,12 @@ class Multinomial:
                 documents and columns represent word counts. Each column represents a specific word. Ensure columns
                 correspond with the data used in training. If columns do not correspond, use update_dictionary() to
                 update the model before making predictions.
-            return_scores (bool, optional): A flag used to determine if naive bayes scores will be returned. Defaults
-                to not returning scores
 
         Returns:
+            (tuple): tuple containing:
+                predictions (list): A 1D array of predicted labels.
+                scores (:obj:`list` of :obj:`dict`): A 2D array of scores used to make predictions.
+
             A 1D array of predicted labels, each row represents a supplied document. If specified a 2D array of scores
             will be returned.
 
@@ -102,11 +104,8 @@ class Multinomial:
         # Find Label With Max Log Space Sum For Each Test Vector
         predicted_labels = np.argmax(log_space_sums, axis=1)
 
-        # If Desired Exponentiate Log Space Sums And Return Them Along With Predicted Labels
-        if return_scores:
-            return predicted_labels, np.exp(log_space_sums)
+        return predicted_labels, np.exp(log_space_sums)
 
-        return predicted_labels
 
     def update(self, new_labels, new_train_data):
         """ Updates the model using more training data.
