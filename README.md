@@ -103,6 +103,9 @@ This package provides two different Multinomial Naive Bayes models. One
 operates by using pure python data structures and the other relies on 
 the use of numpy.
 
+The models I provided also can be used for online learning. They have
+methods to update the model as new data is acquired.
+
 ### models.dictionary
 This model uses python data structures only. To train this model, the 
 user most provide a list of list of words and a list of labels. It is 
@@ -122,3 +125,10 @@ above. **Ensure that your training vectors and testing vectors
 correspond to one another. This means they have the same length and 
 columns correspond to the same word. For example all vectors are 
 length 1 and column 1 represents the word "test"**
+
+## Possible Future Updates
+
+Possible updates to this package include:
+* Implement Bernoulli Naive Bayes
+* Implement Complement Naive Bayes
+* Implement Gaussian Naive Bayes
