@@ -4,6 +4,7 @@ import nltk
 import numpy as np
 import pickle
 import string
+import os
 
 
 ###################
@@ -24,7 +25,8 @@ print("Number Of Most Frequent Words To Remove: " + str(args.top_n_remove))
 
 # Kaggle SMS Spam Dataset
 # Found Here: https://www.kaggle.com/uciml/sms-spam-collection-dataset
-with open("./spam.csv", encoding="ISO-8859-1") as csv_file:
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+with open(os.path.join(__location__, "spam.csv"), encoding="ISO-8859-1") as csv_file:
     reader = csv.reader(csv_file)
 
     # Column Names
@@ -94,7 +96,7 @@ with open("./spam.csv", encoding="ISO-8859-1") as csv_file:
     for i, word_list in enumerate(cleaned_msgs_list):
 
         # Put Msg Label Into A Vector
-        if labels[i] == 'spam':
+        if labels[i] == "spam":
             label_vectors[i] = 1
         else:
             label_vectors[i] = 0
@@ -110,5 +112,5 @@ with open("./spam.csv", encoding="ISO-8859-1") as csv_file:
                   "vectors": {"vectors": data_as_vectors, "word_map": word_map, "labels": label_vectors}}
 
     # Write Pickle File
-    with open('./sms_spam.pkl', 'wb') as f:
+    with open(os.path.join(__location__, "sms_spam.pkl"), "wb") as f:
         pickle.dump(final_data, f, pickle.HIGHEST_PROTOCOL)

@@ -4,12 +4,13 @@ import nltk
 import numpy as np
 import pickle
 import string
+import os
 
 
 ###################
 # Parse Arguments #
 ###################
-parser = argparse.ArgumentParser(description='Optional Arguments For NLTK Wine Data')
+parser = argparse.ArgumentParser(description="Optional Arguments For NLTK Wine Data")
 
 parser.add_argument("--top_n_remove", type=int, help="Top N Frequent Words To Remove", default=0)
 
@@ -24,7 +25,7 @@ print("Number Of Most Frequent Words To Remove: " + str(args.top_n_remove))
 
 
 # Download WebText Corpus If Not Already Downloaded
-nltk.download('webtext')
+nltk.download("webtext")
 from nltk.corpus import webtext
 
 # Break Raw Data Into Individual Reviews
@@ -72,7 +73,7 @@ for review in wine_reviews_raw:
     if score <= 2:
         # Remove "No Stars" From Reviews With 0 Stars
         if "No Stars" in review:
-            review = review.replace('No Stars', '')
+            review = review.replace("No Stars", '')
 
         bad_review_freq.update(tokens)
     else:
@@ -129,6 +130,7 @@ final_data = {"bagofwords": {"raw_data": cleaned_review_data, "raw_data_top_remo
                              "labels": review_labels},
               "vectors": {"vectors": data_as_vectors, "word_map": word_map, "labels": label_vectors}}
 
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 # Write Pickle File
-with open('wine_data.pkl', 'wb') as f:
+with open(os.path.join(__location__, "wine_data.pkl"), "wb") as f:
         pickle.dump(final_data, f, pickle.HIGHEST_PROTOCOL)

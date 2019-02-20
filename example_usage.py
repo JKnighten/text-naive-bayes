@@ -23,7 +23,7 @@ with open('./sample_data/nltk/wine/wine_data.pkl', 'rb') as f:
 
     model_dict = DictMultinomial()
     model_dict.train(labels, raw_data_top_removed)
-    dict_predictions, dict_scores = model_dict.predict(raw_data, return_scores=True)
+    dict_predictions, dict_scores = model_dict.predict(raw_data)
 
     matches = 0
     for i in range(0, len(labels)):
@@ -46,7 +46,7 @@ with open('./sample_data/nltk/wine/wine_data.pkl', 'rb') as f:
 
     model_vect = VectMultinomial()
     model_vect.train(labels_as_vectors, reviews_as_vector)
-    vect_predictions, vect_scores = model_vect.predict(reviews_as_vector, return_scores=True)
+    vect_predictions, vect_scores = model_vect.predict(reviews_as_vector)
 
     accuracy = np.sum(vect_predictions == labels_as_vectors)/labels_as_vectors.shape[0]
     print("Wine Data Example - Vector")
@@ -68,7 +68,7 @@ with open('./sample_data/kaggle/spam/sms_spam.pkl', 'rb') as f:
 
     model_dict = DictMultinomial()
     model_dict.train(labels, raw_data_top_removed)
-    dict_predictions, dict_scores = model_dict.predict(raw_data, return_scores=True)
+    dict_predictions, dict_scores = model_dict.predict(raw_data)
 
     matches = 0
     for i in range(0, len(labels)):
@@ -90,7 +90,7 @@ with open('./sample_data/kaggle/spam/sms_spam.pkl', 'rb') as f:
 
     model_vect = VectMultinomial()
     model_vect.train(labels_as_vectors, msgs_as_vector)
-    vect_predictions, vect_scores = model_vect.predict(msgs_as_vector, return_scores=True)
+    vect_predictions, vect_scores = model_vect.predict(msgs_as_vector)
 
     accuracy = np.sum(vect_predictions == labels_as_vectors)/labels_as_vectors.shape[0]
     print("Wine Data Example - Vector")
