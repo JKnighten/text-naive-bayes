@@ -29,6 +29,7 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         self.correct_a_very_close_game_score = {"not sport": (2/23) * (1/23) * (2/23) * (1/23) * (2/5),
                                                 "sport": (3/25) * (2/25) * (1/25) * (3/25) * (3/5)}
 
+        # Extended Data
         self.dictionary = {'game', 'was', 'a', 'very', 'the', 'great', 'forgettable', 'match', 'clean', 'but',
                            'election', 'it', 'close', 'over'}
         self.extended_dictionary = self.dictionary.copy()
@@ -40,6 +41,19 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         self.correct_extended_empty_likelihoods = {"sport": 1/26, "not sport":  1/24}
         self.correct_extended_a_very_close_game_score = {"sport": (3/26) * (2/26) * (1/26) * (3/26) * (3/5),
                                                          "not sport": (2/24) * (1/24) * (2/24) * (1/24) * (2/5)}
+
+        # Shortened Data
+        self.dictionary = {'game', 'was', 'a', 'very', 'the', 'great', 'forgettable', 'match', 'clean', 'but',
+                           'election', 'it', 'close', 'over'}
+        self.shortened_dictionary = self.dictionary.copy()
+        self.shortened_dictionary.remove("game")
+        self.correct_shortened_likelihoods = {"not sport": {'election': 3/22, 'was': 3/22, 'over': 2/22, 'the': 2/22,
+                                                            'close': 2/22, 'it': 2/22, 'a': 2/22},
+                                              "sport": {'a': 3/22, 'clean': 3/22, 'great': 2/22,
+                                                        'forgettable': 2/22, 'very': 2/22, 'match': 2/22, 'but': 2/22}}
+        self.correct_shortened_empty_likelihoods = {"sport": 1/22, "not sport":  1/22}
+        self.correct_shortened_a_very_close_game_score = {"sport": (3/22) * (2/22) * (1/22) * (3/5),
+                                                          "not sport": (2/22) * (1/22) * (2/22) * (2/5)}
 
     # Check Correct Prediction Is Made
     def test_nb_dict_prediction(self):
@@ -88,7 +102,7 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         # Correct Prediction Output
         self.assertEqual(prediction[0], "sport")
 
-    def test_nb_vect_update_correct_updated_dictionary(self):
+    def test_nb_vect_update_correct_expand_dictionary(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
         model.update_dictionary(self.extended_dictionary)
@@ -104,6 +118,28 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         self.assertIsNotNone(score)
         self.assertAlmostEqual(score[0]["sport"], self.correct_extended_a_very_close_game_score["sport"])
         self.assertAlmostEqual(score[0]["not sport"], self.correct_extended_a_very_close_game_score["not sport"])
+
+        # Correct Prediction
+        self.assertEqual(prediction[0], "sport")
+
+
+
+    def test_nb_vect_update_correct_shorten_dictionary(self):
+        model = Multinomial()
+        model.train(self.sports_labels, self.sports_data)
+        model.update_dictionary(self.shortened_dictionary)
+        prediction, score = model.predict(self.a_very_close_game)
+
+        # Correct Model Parameter Updates
+        self.assertEqual(model.priors, self.correct_priors)
+        self.assertEqual(model.label_counts, self.correct_label_count)
+        self.assertEqual(model.empty_likelihoods, self.correct_shortened_empty_likelihoods)
+        self.assertDictEqual(model.likelihoods, self.correct_shortened_likelihoods)
+
+        # Correct Scores
+        self.assertIsNotNone(score)
+        self.assertAlmostEqual(score[0]["sport"], self.correct_shortened_a_very_close_game_score["sport"])
+        self.assertAlmostEqual(score[0]["not sport"], self.correct_shortened_a_very_close_game_score["not sport"])
 
         # Correct Prediction
         self.assertEqual(prediction[0], "sport")
