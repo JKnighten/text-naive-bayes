@@ -56,7 +56,7 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
                                                           "not sport": (2/22) * (1/22) * (2/22) * (2/5)}
 
     # Check Correct Prediction Is Made
-    def test_nb_dict_prediction(self):
+    def test_nb_dict_prediction_and_model(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
         prediction, _ = model.predict(self.a_very_close_game)
@@ -71,7 +71,7 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         self.assertEqual(prediction[0], "sport")
 
     # Check Score is Returned And Score Is Correct
-    def test_nb_dict_scores(self):
+    def test_nb_dict_score_output(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
         prediction, score = model.predict(self.a_very_close_game)
@@ -82,7 +82,7 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         self.assertAlmostEqual(score[0]["not sport"], self.correct_a_very_close_game_score["not sport"])
 
     # Check That The Update Method Updates The Model
-    def test_nb_dict_update(self):
+    def test_nb_dict_add_more_training_data(self):
         model = Multinomial()
         model.train(self.sports_labels[0:4], self.sports_data[0:4])
         model.update([self.sports_labels[4]], [self.sports_data[4]])
@@ -102,7 +102,7 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         # Correct Prediction Output
         self.assertEqual(prediction[0], "sport")
 
-    def test_nb_vect_update_correct_expand_dictionary(self):
+    def test_nb_dict_update_correct_extend_dictionary(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
         model.update_dictionary(self.extended_dictionary)
@@ -122,9 +122,7 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         # Correct Prediction
         self.assertEqual(prediction[0], "sport")
 
-
-
-    def test_nb_vect_update_correct_shorten_dictionary(self):
+    def test_nb_dict_update_correct_shorten_dictionary(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
         model.update_dictionary(self.shortened_dictionary)

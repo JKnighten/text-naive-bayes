@@ -187,6 +187,11 @@ class Multinomial:
             if word in old_map:
                 new_likelihoods[:, new_map[word]] = self.likelihoods[:, old_map[word]]
 
+        # If Word From Old Map Is Note Used Update Label Word Counts
+        for word in old_map:
+            if word not in new_map:
+                label_word_count = label_word_count - self.likelihoods[:, old_map[word]]
+
         self.likelihoods = new_likelihoods
 
         # Get Size of The New Dictionary
