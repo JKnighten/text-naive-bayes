@@ -126,6 +126,53 @@ correspond to one another. This means they have the same length and
 columns correspond to the same word. For example all vectors are 
 length 1 and column 1 represents the word "test"**
 
+## Example Use
+
+Here is an example of using the dictionary model:
+```
+from naivebayes.models.dictionary import Multinomial
+
+train_labels = ["good", "good", "bad", "bad"]
+train_data = [["i", "liked", "it"],
+              ["it", "was", "very", "good"],
+              ["i", "hated", "it"],
+              ["it", "was", "bad]]
+              
+test_data = [["i", "thought", "it", "was", "bad"]]
+              
+model = Multinomial()
+model.train(train_labels, train_data)
+predictions, scores = model_dict.predict(raw_data)
+```
+
+Here is an example of using the vector model:
+```
+import numpy
+from naivebayes.models.vector import Multinomial
+
+# 0 = bad, 1 = good
+train_labels = np.array([1, 1, 0, 0])
+
+word_map = {"i" : 0, "liked": 1, "it": 2, "was": 3, "very": 4, "good": 5,
+            "hated": 6, "bad": 7}
+            
+train_data = np.array([[1, 1, 1, 0, 0, 0, 0, 0],
+                       [0, 0, 1, 1, 1, 1, 0, 0],
+                       [1, 0, 1, 0, 0, 0, 1, 0],
+                       [0, 0, 1, 1, 0, 0, 0, 1]])
+                       
+# "i thought it was bad"
+# Notice "thought" was droped because there is no column for "thought"
+test_data = np.array([[1, 0, 1, 1, 0, 0, 0, 1]])
+
+model = Multinomial()
+model.train(train_labels, train_data)
+predictions, scores = model_dict.predict(raw_data)
+```
+
+For more examples check *example_usage.py* in the package's main 
+directory.
+
 ## Possible Future Updates
 
 Possible updates to this package include:

@@ -40,7 +40,8 @@ class Multinomial:
         """ Trains the naive bayes model using the supplied training data.
 
         Args:
-            labels (ndarray): A 1D array of labels. Labels are represented by integers.
+            labels (ndarray): A 1D array of labels. Labels are represented by consecutive integers starting at 0(0, 1,
+                2, ...).
             train_data (ndarray): A 2D array of training data. Rows represent documents and columns represent word
                 counts. Each column represents a specific word.
 
