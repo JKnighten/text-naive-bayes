@@ -30,6 +30,9 @@ class Multinomial:
                 1.0(Laplace Smoothing).
 
         """
+        # Catch Invalid Smoothing Factor
+        if smoothing < 0:
+            raise ValueError("Smoothing factor cannot be less than 0: it was set to {}".format(smoothing))
 
         self.smoothing = smoothing
         self.label_counts = {}
@@ -48,6 +51,11 @@ class Multinomial:
                 represents a document.
 
         """
+
+        # Check That Every Document In train_data Has A Label Associated With It
+        if len(labels) != len(train_data):
+            raise ValueError("The number of labels and documents are different: {} labels and {} documents"
+                             .format(len(labels), len(train_data)))
 
         self.labels_used = set(labels)
 

@@ -3,7 +3,7 @@ import numpy as np
 from naivebayes.models.vector import Multinomial
 
 
-class TestVectorNaiveBayes(unittest.TestCase):
+class TestVectorMultinomialNaiveBayes(unittest.TestCase):
 
     def setUp(self):
         # Sports Data Example
@@ -57,11 +57,32 @@ class TestVectorNaiveBayes(unittest.TestCase):
         self.correct_shortened_a_very_close_game_score = np.array([(3/22) * (2/22) * (1/22) * (3/5),
                                                                   (2/22) * (1/22) * (2/22) * (2/5)])
 
-    # Check Correct Correct Model and Prediction Is Made
-    def test_nb_vect_correct_prediction_and_model(self):
+    def test_constructor_invalid_smoothing_factor(self):
+        self.assertRaises(ValueError, Multinomial, smoothing=-1.0)
+
+    def test_train_number_of_labels_and_docs_differ(self):
+        model = Multinomial()
+        self.assertRaises(ValueError, model.train, self.labels_sports[0:4], self.train_data_sports)
+
+    def test_train_labels_not_numpy_array(self):
+        model = Multinomial()
+        self.assertRaises(TypeError, model.train, list(self.labels_sports), self.train_data_sports)
+
+    def test_train_labels_not_1D(self):
+        model = Multinomial()
+        self.assertRaises(ValueError, model.train, self.labels_sports[:, np.newaxis], self.train_data_sports)
+
+    def test_train_training_data_not_numpy_array(self):
+        model = Multinomial()
+        self.assertRaises(TypeError, model.train, self.labels_sports, list(self.train_data_sports))
+
+    def test_train_training_data_not_2D(self):
+        model = Multinomial()
+        self.assertRaises(ValueError, model.train, self.labels_sports, self.train_data_sports[:, np.newaxis])
+
+    def test_train_model_params(self):
         model = Multinomial()
         model.train(self.labels_sports, self.train_data_sports)
-        prediction, _ = model.predict(self.a_very_close_game)
 
         # Correct Model
         np.testing.assert_array_almost_equal(model.priors, self.correct_priors)
@@ -69,24 +90,66 @@ class TestVectorNaiveBayes(unittest.TestCase):
         np.testing.assert_array_almost_equal(model.empty_likelihoods, self.correct_empty_likelihoods)
         np.testing.assert_array_almost_equal(model.likelihoods, self.correct_likelihoods)
 
-        # Correct Prediction Output
-        self.assertEqual(prediction, 0)
+    def test_predict_test_data_not_numpy_array(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.assertRaises(TypeError, model.predict, list(self.a_very_close_game))
 
-    # Check The Correct Score Is Returned
-    def test_nb_vect_correct_score_output(self):
+    def test_predict_test_data_not_2D(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.assertRaises(ValueError, model.predict, np.array(self.a_very_close_game[0]))
+
+    def test_predict_test_data_not_same_dim_as_training_data(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.assertRaises(ValueError, model.predict, self.a_very_close_game[:, 0:2])
+
+    def test_predict_prediction_and_score(self):
         model = Multinomial()
         model.train(self.labels_sports, self.train_data_sports)
         prediction, score = model.predict(self.a_very_close_game)
 
+        # Correct Prediction Output
+        self.assertEqual(prediction, 0)
+
         # Correct Score Output
-        self.assertIsNotNone(score)
         np.testing.assert_array_almost_equal(score[0], self.correct_a_very_close_game_score)
 
-    # Check That The Model Parameters Are Updated After Adding More Training Data
-    def test_nb_vect_correct_add_more_training_data(self):
+    def test_update_number_of_labels_and_docs_differ(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.assertRaises(ValueError, model.update, self.labels_sports[0:4], self.train_data_sports)
+
+    def test_update_labels_not_numpy_array(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.assertRaises(TypeError, model.update, list(self.labels_sports), self.train_data_sports)
+
+    def test_update_labels_not_1D(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.assertRaises(ValueError, model.update, self.labels_sports[:, np.newaxis], self.train_data_sports)
+
+    def test_update_new_train_data_not_numpy_array(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.assertRaises(TypeError, model.update, self.labels_sports, list(self.train_data_sports))
+
+    def test_update_new_train_data_not_2D(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.assertRaises(ValueError, model.update, self.labels_sports, self.train_data_sports[:, np.newaxis])
+
+    def test__update_new_train_data_not_same_dim_as_training_data(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.assertRaises(ValueError, model.update, self.labels_sports, self.train_data_sports[:, 0:2])
+
+    def test_update_add_more_training_data(self):
         model = Multinomial()
         model.train(self.labels_sports[0:4], self.train_data_sports[0:4])
-        model.update(self.labels_sports[4], self.train_data_sports[4])
+        model.update(np.array([self.labels_sports[4]]), np.array([self.train_data_sports[4]]))
         prediction, score = model.predict(self.a_very_close_game)
 
         # Correct Model Parameter Updates
@@ -96,14 +159,57 @@ class TestVectorNaiveBayes(unittest.TestCase):
         np.testing.assert_array_almost_equal(model.likelihoods, self.correct_likelihoods)
 
         # Correct New Scores
-        self.assertIsNotNone(score)
         np.testing.assert_array_almost_equal(score[0], self.correct_a_very_close_game_score)
 
         # Correct Prediction
         self.assertEqual(prediction[0], 0)
 
-    # Check That The Model Parameters Are Updated After Updating The Dictionary
-    def test_nb_vect_update_correct_extend_dictionary(self):
+    def test_update_dictionary_old_map_not_dict(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.assertRaises(TypeError, model.update_dictionary, list(self.sports_map), self.sports_map_shortened)
+
+    def test_update_dictionary_old_map_wrong_keys(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.sports_map[0] = 1
+        self.assertRaises(TypeError, model.update_dictionary, self.sports_map, self.sports_map_shortened)
+
+    def test_update_dictionary_old_map_wrong_values(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.sports_map["test"] = "fun"
+        self.assertRaises(TypeError, model.update_dictionary, self.sports_map, self.sports_map_shortened)
+
+    def test_update_dictionary_old_map_not_same_size_as_training_data(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.sports_map["test"] = 15
+        self.assertRaises(ValueError, model.update_dictionary, self.sports_map, self.sports_map_shortened)
+
+    def test_update_dictionary_new_map_not_dict(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.assertRaises(TypeError, model.update_dictionary, self.sports_map, list(self.sports_map_shortened))
+
+    def test_update_dictionary_new_map_wrong_keys(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.sports_map_shortened[0] = 1
+        self.assertRaises(TypeError, model.update_dictionary, self.sports_map, self.sports_map_shortened)
+
+    def test_update_dictionary_new_map_wrong_values(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.sports_map_shortened["test"] = "fun"
+        self.assertRaises(TypeError, model.update_dictionary, self.sports_map, self.sports_map_shortened)
+
+    def test_update_dictionary_new_map_is_empty(self):
+        model = Multinomial()
+        model.train(self.labels_sports, self.train_data_sports)
+        self.assertRaises(ValueError, model.update_dictionary, self.sports_map, {})
+
+    def test_update_dictionary_extend_dictionary(self):
         model = Multinomial()
         model.train(self.labels_sports, self.train_data_sports)
         model.update_dictionary(self.sports_map, self.sports_map_extra)
@@ -116,14 +222,12 @@ class TestVectorNaiveBayes(unittest.TestCase):
         np.testing.assert_array_almost_equal(model.likelihoods, self.correct_extended_likelihoods)
 
         # Correct Scores
-        self.assertEqual(prediction[0], 0)
-        self.assertIsNotNone(score)
         np.testing.assert_array_almost_equal(score[0], self.correct_extended_a_very_close_game_score)
 
         # Correct Prediction
         self.assertEqual(prediction[0], 0)
 
-    def test_nb_vect_update_correct_shorten_dictionary(self):
+    def test_update_dictionary_shorten_dictionary(self):
         model = Multinomial()
         model.train(self.labels_sports, self.train_data_sports)
         model.update_dictionary(self.sports_map, self.sports_map_shortened)
@@ -136,8 +240,6 @@ class TestVectorNaiveBayes(unittest.TestCase):
         np.testing.assert_array_almost_equal(model.likelihoods, self.correct_shortened_likelihoods)
 
         # Correct Scores
-        self.assertEqual(prediction[0], 0)
-        self.assertIsNotNone(score)
         np.testing.assert_array_almost_equal(score[0], self.correct_shortened_a_very_close_game_score)
 
         # Correct Prediction

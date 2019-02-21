@@ -30,6 +30,10 @@ class Multinomial:
 
         """
 
+        # Catch Invalid Smoothing Factor
+        if smoothing < 0:
+            raise ValueError("Smoothing factor cannot be less than 0: it was set to {}".format(smoothing))
+
         self.smoothing = smoothing
         self.priors = np.empty(0)
         self.likelihoods = np.empty(0)
@@ -46,6 +50,27 @@ class Multinomial:
                 counts. Each column represents a specific word.
 
         """
+
+        # Check Labels Is A Numpy Array
+        if not isinstance(labels, np.ndarray):
+            raise TypeError("Labels must be a numpy array: it was a {}".format(type(labels)))
+
+        # Check Labels Is 1D
+        if len(labels.shape) != 1:
+            raise ValueError("The labels array must be 1D: the shape was {}".format(labels.shape))
+
+        # Check Train Data Is Numpy Array
+        if not isinstance(train_data, np.ndarray):
+            raise TypeError("Train data must be a numpy array: it was a {}".format(type(train_data)))
+
+        # Check Train Data Is 2D
+        if len(train_data.shape) != 2:
+            raise ValueError("The train data array must be 2D: the shape was {}".format(train_data.shape))
+
+        # Check That Every Document In train_data Has A Label Associated With It
+        if labels.shape[0] != train_data.shape[0]:
+            raise ValueError("The number of labels and documents are different: {} labels and {} documents"
+                             .format(labels.shape[0], train_data.shape[0]))
 
         # Get Size of Dictionary Being Used
         dictionary_size = train_data.shape[1]
@@ -75,7 +100,6 @@ class Multinomial:
         self.empty_likelihoods = np.zeros((self.priors.shape[0], 1))
         self.empty_likelihoods = self.smoothing / (label_word_count + self.smoothing * dictionary_size)
 
-
     def predict(self, test_data):
         """ Predicts the label for the supplied text document data.
 
@@ -95,6 +119,19 @@ class Multinomial:
 
         """
 
+        # Check Test Data Is A Numpy Array
+        if not isinstance(test_data, np.ndarray):
+            raise TypeError("Test data must be a numpy array: it was a {}".format(type(test_data)))
+
+        # Check Test Data Is 2D
+        if len(test_data.shape) != 2:
+            raise ValueError("The test data array must be 2D: the shape was {}".format(test_data.shape))
+
+        # Check Test Data Has The Same Number Of Columns As The Trained Model
+        if test_data.shape[1] != self.likelihoods.shape[1]:
+            raise ValueError("Test data must have the same number of columns as data used in training: test data" +
+                             "cols {} and training data cols {}".format(test_data.shape[1],self.likelihoods.shape[1]))
+
         # Convert To Log Space
         log_priors = np.log(self.priors)
         log_likelihoods = np.log(self.likelihoods)
@@ -107,7 +144,6 @@ class Multinomial:
 
         return predicted_labels, np.exp(log_space_sums)
 
-
     def update(self, new_labels, new_train_data):
         """ Updates the model using more training data.
 
@@ -119,6 +155,33 @@ class Multinomial:
                 counts. Each column represents a specific word.
 
         """
+
+        # Check Labels Is A Numpy Array
+        if not isinstance(new_labels, np.ndarray):
+            raise TypeError("New labels must be a numpy array: it was a {}".format(type(new_labels)))
+
+        # Check Labels Is 1D
+        if len(new_labels.shape) != 1:
+            raise ValueError("The new labels array must be 1D: the shape was {}".format(new_labels.shape))
+
+        # Check Train Data Is Numpy Array
+        if not isinstance(new_train_data, np.ndarray):
+            raise TypeError("New train data must be a numpy array: it was a {}".format(type(new_train_data)))
+
+        # Check Train Data Is 2D
+        if len(new_train_data.shape) != 2:
+            raise ValueError("The new train data array must be 2D: the shape was {}".format(new_train_data.shape))
+
+        # Check That Every Document In train_data Has A Label Associated With It
+        if new_labels.shape[0] != new_train_data.shape[0]:
+            raise ValueError("The number of new labels and new documents are different: {} labels and {} documents"
+                             .format(new_labels.shape[0], new_train_data.shape[0]))
+
+        # Check New Train Data Has The Same Number Of Columns As The Trained Model
+        if new_train_data.shape[1] != self.likelihoods.shape[1]:
+            raise ValueError("New train data must have the same number of columns as data used in training: new " +
+                             "training data cols {} and training data cols {}".format(new_train_data.shape[1],
+                                                                                      self.likelihoods.shape[1]))
 
         # Get Size of Dictionary Being Used
         dictionary_size = self.likelihoods.shape[1]
@@ -167,6 +230,44 @@ class Multinomial:
             new_map (:obj:`list` of :obj:`int`): The new map from words to their representative column.
 
         """
+
+        # Old Map Must Be A Dictionary
+        if not isinstance(old_map, dict):
+            raise TypeError("Old map must be of type dict: the type {} was given".format(type(old_map)))
+
+        # Old Map Must Be A Dictionary With str Keys
+        if set(map(type, old_map.keys())) != {str}:
+            raise TypeError("Old maps keys must be of type str: the type {} was given"
+                            .format(set(map(type, old_map.keys()))))
+
+        # Old Map Must Be A Dictionary With int Values
+        if set(map(type, old_map.values())) != {int}:
+            raise TypeError("Old maps values must be of type int: the type {} was given"
+                            .format(set(map(type, old_map.values()))))
+
+        # Old Map Must Have The Same Number Of Keys As The Number Of Cols In Training Data
+        if len(old_map.keys()) != self.likelihoods.shape[1]:
+            raise ValueError("Old map should have the same numbers as keys as the number of cols in the training data:"
+                             + "there were {} keys in old map and {} cols in the training data"
+                             .format(len(old_map.keys()), self.likelihoods.shape[1]))
+
+        # New Map Must Be A Dictionary
+        if not isinstance(new_map, dict):
+            raise TypeError("New map must be of type dict: the type {} was given".format(type(old_map)))
+
+        # New Map Must Not Be Empty
+        if len(new_map.keys()) == 0:
+            raise ValueError("New map should not be empty")
+
+        # New Map Must Be A Dictionary With str Keys
+        if set(map(type, new_map.keys())) != {str}:
+            raise TypeError("Old maps keys must be of type str: the type {} was given"
+                            .format(set(map(type, old_map.keys()))))
+
+        # New Map Must Be A Dictionary With int Values
+        if set(map(type, new_map.values())) != {int}:
+            raise TypeError("New maps values must be of type int: the type {} was given"
+                            .format(set(map(type, new_map.keys()))))
 
         # Get Size of Dictionary Being Used
         dictionary_size = self.likelihoods.shape[1]

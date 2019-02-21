@@ -141,3 +141,11 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
 
         # Correct Prediction
         self.assertEqual(prediction[0], "sport")
+
+    def test_nb_dict_invalid_smoothing_factor(self):
+        self.assertRaises(ValueError, Multinomial, smoothing=-1.0)
+
+    def test_nb_dict_train_number_labels_and_docs_differ(self):
+        model = Multinomial()
+        self.assertRaises(ValueError, model.train, self.sports_labels[0:4], self.sports_data)
+
