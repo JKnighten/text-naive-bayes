@@ -129,7 +129,7 @@ length 1 and column 1 represents the word "test"**
 ## Example Use
 
 Here is an example of using the dictionary model:
-```
+```python
 from naivebayes.models.dictionary import Multinomial
 
 train_labels = ["good", "good", "bad", "bad"]
@@ -146,7 +146,7 @@ predictions, scores = model_dict.predict(raw_data)
 ```
 
 Here is an example of using the vector model:
-```
+```python
 import numpy
 from naivebayes.models.vector import Multinomial
 
@@ -162,7 +162,7 @@ train_data = np.array([[1, 1, 1, 0, 0, 0, 0, 0],
                        [0, 0, 1, 1, 0, 0, 0, 1]])
                        
 # "i thought it was bad"
-# Notice "thought" was droped because there is no column for "thought"
+# Notice "thought" was dropped because there is no column for "thought"
 test_data = np.array([[1, 0, 1, 1, 0, 0, 0, 1]])
 
 model = Multinomial()
