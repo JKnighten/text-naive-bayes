@@ -143,6 +143,12 @@ test_data = [["i", "thought", "it", "was", "bad"]]
 model = Multinomial()
 model.train(train_labels, train_data)
 predictions, scores = model_dict.predict(raw_data)
+
+# Add More Training Data 
+# Note: The Dictionary Model Adds New Words To Dictionary
+new_labels = ["good"]
+new_data = [["i", "love", "it"]]
+model.update(new_labels, new_data)
 ```
 
 Here is an example of using the vector model:
@@ -168,6 +174,16 @@ test_data = np.array([[1, 0, 1, 1, 0, 0, 0, 1]])
 model = Multinomial()
 model.train(train_labels, train_data)
 predictions, scores = model_dict.predict(raw_data)
+
+# Update Dictionary To Contain The Word "love"
+new_word_map = word_map.copy()
+new_word_map["love"] = 8
+model.update_dictionary(word_map, new_word_map)
+
+# Add More Training Data After Extending Dictionary
+new_labels = np.array([1])
+new_data = np.array([[1, 0, 1, 0, 0, 0, 0, 0, 1]]) # "i loved it"
+model.update(new_labels, new_data)
 ```
 
 For more examples check *example_usage.py* in the package's main 
