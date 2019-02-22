@@ -8,6 +8,9 @@ import numpy as np
 # Wine Data Example #
 #####################
 
+print("\n* Reported accuracies between both methods can be slightly different. This is due to ties not being assigned" +
+      " the same label. * \n\n")
+
 print("Wine Data Example")
 
 with open('./sample_data/nltk/wine/wine_data.pkl', 'rb') as f:
