@@ -119,6 +119,10 @@ class Multinomial:
 
         """
 
+        # Check Model Is Trained Before Performing Prediction
+        if self.likelihoods.size == 0:
+            raise ValueError("The model needs to be trained before making predictions")
+
         # Check Test Data Is A Numpy Array
         if not isinstance(test_data, np.ndarray):
             raise TypeError("Test data must be a numpy array: it was a {}".format(type(test_data)))
@@ -155,6 +159,10 @@ class Multinomial:
                 counts. Each column represents a specific word.
 
         """
+
+        # Check Model Is Trained Before Updating The Model
+        if self.likelihoods.size == 0:
+            raise ValueError("The model needs to be trained before updating the model")
 
         # Check Labels Is A Numpy Array
         if not isinstance(new_labels, np.ndarray):
@@ -230,6 +238,10 @@ class Multinomial:
             new_map (:obj:`list` of :obj:`int`): The new map from words to their representative column.
 
         """
+
+        # Check Model Is Trained Before Updating The Dictionary
+        if self.likelihoods.size == 0:
+            raise ValueError("The model needs to be trained before updating the dictionary")
 
         # Old Map Must Be A Dictionary
         if not isinstance(old_map, dict):

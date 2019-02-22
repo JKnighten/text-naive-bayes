@@ -105,6 +105,10 @@ class TestVectorMultinomialNaiveBayes(unittest.TestCase):
         model.train(self.labels_sports, self.train_data_sports)
         self.assertRaises(ValueError, model.predict, self.a_very_close_game[:, 0:2])
 
+    def test_predict_called_before_training(self):
+        model = Multinomial()
+        self.assertRaises(ValueError, model.predict, self.a_very_close_game)
+
     def test_predict_prediction_and_score(self):
         model = Multinomial()
         model.train(self.labels_sports, self.train_data_sports)
@@ -145,6 +149,10 @@ class TestVectorMultinomialNaiveBayes(unittest.TestCase):
         model = Multinomial()
         model.train(self.labels_sports, self.train_data_sports)
         self.assertRaises(ValueError, model.update, self.labels_sports, self.train_data_sports[:, 0:2])
+
+    def test_update_called_before_training(self):
+        model = Multinomial()
+        self.assertRaises(ValueError, model.update, self.labels_sports, self.train_data_sports)
 
     def test_update_add_more_training_data(self):
         model = Multinomial()
@@ -208,6 +216,10 @@ class TestVectorMultinomialNaiveBayes(unittest.TestCase):
         model = Multinomial()
         model.train(self.labels_sports, self.train_data_sports)
         self.assertRaises(ValueError, model.update_dictionary, self.sports_map, {})
+
+    def test_update_dictionary_called_before_training(self):
+        model = Multinomial()
+        self.assertRaises(ValueError, model.update_dictionary, self.sports_map, self.sports_map_extra)
 
     def test_update_dictionary_extend_dictionary(self):
         model = Multinomial()

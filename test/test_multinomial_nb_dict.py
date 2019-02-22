@@ -104,7 +104,12 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
 
     def test_predict_test_data_does_not_contains_lists_of_strs(self):
         model = Multinomial()
+        model.train(self.sports_labels, self.sports_data)
         self.assertRaises(TypeError, model.predict, map(lambda x: [0], self.sports_data))
+
+    def test_predict_called_before_training(self):
+        model = Multinomial()
+        self.assertRaises(ValueError, model.predict, self.a_very_close_game)
 
     def test_predict_prediction_and_score(self):
         model = Multinomial()
@@ -132,22 +137,26 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
     def test_update_training_data_is_not_in_a_list(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
-        self.assertRaises(TypeError, model.train, self.sports_labels, set())
+        self.assertRaises(TypeError, model.update, self.sports_labels, set())
 
     def test_update_training_data_does_not_contains_lists(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
-        self.assertRaises(TypeError, model.train, self.sports_labels, map(lambda x: set(), self.sports_data))
+        self.assertRaises(TypeError, model.update, self.sports_labels, map(lambda x: set(), self.sports_data))
 
     def test_update_training_data_does_not_contains_lists_of_strs(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
-        self.assertRaises(TypeError, model.train, self.sports_labels, map(lambda x: [0], self.sports_data))
+        self.assertRaises(TypeError, model.update, self.sports_labels, map(lambda x: [0], self.sports_data))
 
     def test_update_number_of_labels_and_docs_differ(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
-        self.assertRaises(ValueError, model.train, self.sports_labels[0:4], self.sports_data)
+        self.assertRaises(ValueError, model.update, self.sports_labels[0:4], self.sports_data)
+
+    def test_update_called_before_training(self):
+        model = Multinomial()
+        self.assertRaises(ValueError, model.update, self.sports_labels, self.sports_data)
 
     def test_update_add_more_training_data(self):
         model = Multinomial()
@@ -183,6 +192,10 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
         self.assertRaises(TypeError, model.update_dictionary, {})
+
+    def test_update_dictionary_called_before_training(self):
+        model = Multinomial()
+        self.assertRaises(ValueError, model.update_dictionary, self.extended_dictionary)
 
     def test_update_dictionary_correct_extend_dictionary(self):
         model = Multinomial()

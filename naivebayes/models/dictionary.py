@@ -128,6 +128,8 @@ class Multinomial:
                 scores (:obj:`list` of :obj:`dict`): The scores used to make the predictions.
 
         """
+        if len(self.likelihoods) == 0:
+            raise ValueError("The model needs to be trained before making predictions")
 
         # Check Test Data Is In A List
         if not isinstance(test_data, list):
@@ -177,6 +179,10 @@ class Multinomial:
                 represents a document.
 
         """
+
+        # Check Model Is Trained Before Updating The Model
+        if len(self.likelihoods) == 0:
+            raise ValueError("The model needs to be trained before updating the model")
 
         # Check New Labels Are In A List
         if not isinstance(new_labels, list):
@@ -259,6 +265,10 @@ class Multinomial:
             new_dict (:obj:'set' of :obj:`str`): a set of new words to be added or removed from the dictionary.
 
         """
+
+        # Check Model Is Trained Before Updating The Dictionary
+        if len(self.likelihoods) == 0:
+            raise ValueError("The model needs to be trained before updating the dictionary")
 
         # Check If New Dictionary Is Of Type Set
         if not isinstance(new_dict, set):
