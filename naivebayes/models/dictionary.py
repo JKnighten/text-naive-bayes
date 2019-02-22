@@ -52,6 +52,27 @@ class Multinomial:
 
         """
 
+        # Check Labels Are In A List
+        if not isinstance(labels, list):
+            raise TypeError("Labels must be in a list: it was a {}".format(type(labels)))
+
+        # Check That Labels Are Strings Or Int
+        if sum([isinstance(label, (str, int)) for label in labels]) != len(labels):
+            raise TypeError("The labels must be strs or ints: the shape was {}".format(labels))
+
+        # Check Train Data Is Type List
+        if not isinstance(train_data, list):
+            raise TypeError("Train data must be in a list: it was a {}".format(type(train_data)))
+
+        # Check Inner Train Data Is Type List
+        if sum([isinstance(doc, list) for doc in train_data]) != len(train_data):
+            raise ValueError("The data in train data must be lists: the internal type were {}".format(train_data))
+
+        # Check Most Inner Train Data Is Type Strings
+        if sum([sum([isinstance(word, str) for word in doc]) == len(doc) for doc in train_data]) != len(train_data):
+            raise ValueError("The lists inside of train data must contain strs: the internal type were {}"
+                             .format(train_data))
+
         # Check That Every Document In train_data Has A Label Associated With It
         if len(labels) != len(train_data):
             raise ValueError("The number of labels and documents are different: {} labels and {} documents"
@@ -108,6 +129,19 @@ class Multinomial:
 
         """
 
+        # Check Test Data Is In A List
+        if not isinstance(test_data, list):
+            raise TypeError("Train data must be in a list: it was a {}".format(type(test_data)))
+
+        # Check Inner Test Data Is Lists
+        if sum([isinstance(doc, list) for doc in test_data]) != len(test_data):
+            raise ValueError("The data in train data must be lists: the internal type were {}".format(test_data))
+
+        # Check Most Inner Test Data Is strs
+        if sum([sum([isinstance(word, str) for word in doc]) == len(doc) for doc in test_data]) != len(test_data):
+            raise ValueError("The lists inside of train data must contain strs: the internal type were {}"
+                             .format(test_data))
+
         predicted_labels = []
         all_scores = []
 
@@ -143,6 +177,33 @@ class Multinomial:
                 represents a document.
 
         """
+
+        # Check New Labels Are In A List
+        if not isinstance(new_labels, list):
+            raise TypeError("Labels must be in a list: it was a {}".format(type(new_labels)))
+
+        # Check That New Labels Are Strings Or Int
+        if sum([isinstance(label, (str, int)) for label in new_labels]) != len(new_labels):
+            raise TypeError("The labels must be strings or ints: the shape was {}".format(new_labels))
+
+        # Check New Train Data Is Type List
+        if not isinstance(new_train_data, list):
+            raise TypeError("Train data must be in a list: it was a {}".format(type(new_train_data)))
+
+        # Check Inner New Train Data Is Type List
+        if sum([isinstance(doc, list) for doc in new_train_data]) != len(new_train_data):
+            raise ValueError("The data in train data must be lists: the internal type were {}".format(new_train_data))
+
+        # Check Most Inner New Train Data Is Type Strings
+        if sum([sum([isinstance(word, str) for word in doc]) == len(doc) for doc in new_train_data]) != \
+                len(new_train_data):
+            raise ValueError("The lists inside of train data must contain strings: the internal type were {}"
+                             .format(new_train_data))
+
+        # Check That Every Document In New Train Data Has A Label Associated With It
+        if len(new_labels) != len(new_train_data):
+            raise ValueError("The number of labels and documents are different: {} labels and {} documents"
+                             .format(len(new_labels), len(new_train_data)))
 
         # Get Size of Dictionary Being Used
         dictionary_size = len(self.dictionary)
@@ -195,9 +256,22 @@ class Multinomial:
         """ Add/Remove words to/from the dictionary.
 
         Args:
-            new_dict (:obj:'set'): a set of new words to be added or removed from the dictionary.
+            new_dict (:obj:'set' of :obj:`str`): a set of new words to be added or removed from the dictionary.
 
         """
+
+        # Check If New Dictionary Is Of Type Set
+        if not isinstance(new_dict, set):
+            raise TypeError("The new dictionary needs to be of type set: type {} was found".format(type(new_dict)))
+
+        # Check If New Dictionary Is Empty
+        if len(new_dict) == 0:
+            raise ValueError("The new dictionary cannot be empty")
+
+        # Check If New Dictionary Contains Strings
+        if set(type(word) for word in new_dict) != {str}:
+            raise TypeError("The new dictionary must be a set of strings: a set of type {} was given"
+                            .format(type(set(isinstance(word, str) for word in new_dict))))
 
         # Grab Dictionary Sizes
         new_dict_size = len(new_dict)

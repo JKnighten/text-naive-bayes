@@ -55,11 +55,36 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         self.correct_shortened_a_very_close_game_score = {"sport": (3/22) * (2/22) * (1/22) * (3/5),
                                                           "not sport": (2/22) * (1/22) * (2/22) * (2/5)}
 
-    # Check Correct Prediction Is Made
-    def test_nb_dict_prediction_and_model(self):
+    def test_constructor_invalid_smoothing_factor(self):
+        self.assertRaises(ValueError, Multinomial, smoothing=-1.0)
+
+    def test_train_labels_not_a_list(self):
+        model = Multinomial()
+        self.assertRaises(TypeError, model.train, set(self.sports_labels), self.sports_data)
+
+    def test_train_labels_are_not_str_or_int(self):
+        model = Multinomial()
+        self.assertRaises(TypeError, model.train, list(map(lambda x: None, self.sports_labels)), self.sports_data)
+
+    def test_train_training_data_is_not_in_a_list(self):
+        model = Multinomial()
+        self.assertRaises(TypeError, model.train, self.sports_labels, set())
+
+    def test_train_training_data_does_not_contains_lists(self):
+        model = Multinomial()
+        self.assertRaises(TypeError, model.train, self.sports_labels, map(lambda x: set(), self.sports_data))
+
+    def test_train_training_data_does_not_contains_lists_of_strs(self):
+        model = Multinomial()
+        self.assertRaises(TypeError, model.train, self.sports_labels, map(lambda x: [0], self.sports_data))
+
+    def test_train_number_of_labels_and_docs_differ(self):
+        model = Multinomial()
+        self.assertRaises(ValueError, model.train, self.sports_labels[0:4], self.sports_data)
+
+    def test_train_model_params(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
-        prediction, _ = model.predict(self.a_very_close_game)
 
         # Correct Model
         self.assertEqual(model.priors, self.correct_priors)
@@ -67,22 +92,64 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         self.assertEqual(model.empty_likelihoods, self.correct_empty_likelihoods)
         self.assertDictEqual(model.likelihoods, self.correct_likelihoods)
 
-        # Correct Prediction Output
-        self.assertEqual(prediction[0], "sport")
+    def test_predict_test_data_is_not_in_a_list(self):
+        model = Multinomial()
+        model.train(self.sports_labels, self.sports_data)
+        self.assertRaises(TypeError, model.predict, set())
 
-    # Check Score is Returned And Score Is Correct
-    def test_nb_dict_score_output(self):
+    def test_predict_test_data_does_not_contains_lists(self):
+        model = Multinomial()
+        model.train(self.sports_labels, self.sports_data)
+        self.assertRaises(TypeError, model.predict, map(lambda x: set(), self.a_very_close_game))
+
+    def test_predict_test_data_does_not_contains_lists_of_strs(self):
+        model = Multinomial()
+        self.assertRaises(TypeError, model.predict, map(lambda x: [0], self.sports_data))
+
+    def test_predict_prediction_and_score(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
         prediction, score = model.predict(self.a_very_close_game)
+
+        # Correct Prediction Output
+        self.assertEqual(prediction[0], "sport")
 
         # Correct Score Output
         self.assertIsNotNone(score)
         self.assertAlmostEqual(score[0]["sport"], self.correct_a_very_close_game_score["sport"])
         self.assertAlmostEqual(score[0]["not sport"], self.correct_a_very_close_game_score["not sport"])
 
-    # Check That The Update Method Updates The Model
-    def test_nb_dict_add_more_training_data(self):
+    def test_update_labels_not_a_list(self):
+        model = Multinomial()
+        model.train(self.sports_labels, self.sports_data)
+        self.assertRaises(TypeError, model.update, set(self.sports_labels), self.sports_data)
+
+    def test_update_labels_are_not_str_or_int(self):
+        model = Multinomial()
+        model.train(self.sports_labels, self.sports_data)
+        self.assertRaises(TypeError, model.update, list(map(lambda x: None, self.sports_labels)), self.sports_data)
+
+    def test_update_training_data_is_not_in_a_list(self):
+        model = Multinomial()
+        model.train(self.sports_labels, self.sports_data)
+        self.assertRaises(TypeError, model.train, self.sports_labels, set())
+
+    def test_update_training_data_does_not_contains_lists(self):
+        model = Multinomial()
+        model.train(self.sports_labels, self.sports_data)
+        self.assertRaises(TypeError, model.train, self.sports_labels, map(lambda x: set(), self.sports_data))
+
+    def test_update_training_data_does_not_contains_lists_of_strs(self):
+        model = Multinomial()
+        model.train(self.sports_labels, self.sports_data)
+        self.assertRaises(TypeError, model.train, self.sports_labels, map(lambda x: [0], self.sports_data))
+
+    def test_update_number_of_labels_and_docs_differ(self):
+        model = Multinomial()
+        model.train(self.sports_labels, self.sports_data)
+        self.assertRaises(ValueError, model.train, self.sports_labels[0:4], self.sports_data)
+
+    def test_update_add_more_training_data(self):
         model = Multinomial()
         model.train(self.sports_labels[0:4], self.sports_data[0:4])
         model.update([self.sports_labels[4]], [self.sports_data[4]])
@@ -102,7 +169,22 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         # Correct Prediction Output
         self.assertEqual(prediction[0], "sport")
 
-    def test_nb_dict_update_correct_extend_dictionary(self):
+    def test_update_dictionary_new_dictionary_is_not_set(self):
+        model = Multinomial()
+        model.train(self.sports_labels, self.sports_data)
+        self.assertRaises(TypeError, model.update_dictionary, list(self.extended_dictionary))
+
+    def test_update_dictionary_new_dictionary_does_not_contain_strings(self):
+        model = Multinomial()
+        model.train(self.sports_labels, self.sports_data)
+        self.assertRaises(TypeError, model.update_dictionary, {0})
+
+    def test_update_dictionary_new_dictionary_is_empty(self):
+        model = Multinomial()
+        model.train(self.sports_labels, self.sports_data)
+        self.assertRaises(TypeError, model.update_dictionary, {})
+
+    def test_update_dictionary_correct_extend_dictionary(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
         model.update_dictionary(self.extended_dictionary)
@@ -122,7 +204,7 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
         # Correct Prediction
         self.assertEqual(prediction[0], "sport")
 
-    def test_nb_dict_update_correct_shorten_dictionary(self):
+    def test_update_dictionary_correct_shorten_dictionary(self):
         model = Multinomial()
         model.train(self.sports_labels, self.sports_data)
         model.update_dictionary(self.shortened_dictionary)
@@ -141,11 +223,3 @@ class TestDictionaryNaiveBayes(unittest.TestCase):
 
         # Correct Prediction
         self.assertEqual(prediction[0], "sport")
-
-    def test_nb_dict_invalid_smoothing_factor(self):
-        self.assertRaises(ValueError, Multinomial, smoothing=-1.0)
-
-    def test_nb_dict_train_number_labels_and_docs_differ(self):
-        model = Multinomial()
-        self.assertRaises(ValueError, model.train, self.sports_labels[0:4], self.sports_data)
-
